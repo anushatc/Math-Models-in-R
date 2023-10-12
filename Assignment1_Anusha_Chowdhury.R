@@ -1,0 +1,120 @@
+install.packages("pwr", depend = TRUE)
+install.packages("effsize", depend = TRUE)
+install.packages("dplyr", depend = TRUE)
+library(pwr)
+library(dplyr)
+library(effsize)
+
+#1. Demonstrate that the sampling distribution of sample means of an exponential distribution
+#(population) with lambda (λ) = 5 is approximately normal (Central Limit Theorem) using a
+#simulation. Use the sample size (n) of 50 and number of samples (k) of 1000. (20 points)
+lambda <- 5
+n <- 50      
+k <- 1000
+#Demonstrating CLT
+#population mean & SD are 1/lambda
+mu <- 1/lambda
+sigma <- 1/lambda
+sample_means = vector('numeric', k)
+
+for (i in 1:k) {
+  y_sample = rnorm(n, mean=mu, sd=sigma) # randomly choose n points form a normal distribution
+  
+  sample_means[i] = mean(y_sample)       # compute the mean of the sample
+}
+sample_means[i]
+#based off the plot of the population distribution, we can assume normal distribution through CLT, n is also >30
+#a. What is the real mean of the population?
+real_mean <- 1 / lambda
+real_mean
+#b. What is the estimated mean of the population?
+est_population_mean = mean(sample_means)
+cat("Estimate of the population mean:", est_population_mean)
+#c. Plot the population distribution.
+x = seq(-4, 4, by = 0.01) * sigma + mu
+y = dnorm(x, mu, sigma)
+plot(x, y, type='l', lwd=2, col='blue')
+abline(v=mu, lwd = 2)
+#d. Plot the sample mean distribution.
+hist(sample_means, freq=FALSE)
+abline(v=mean(sample_means), lwd=2, col='red')
+
+
+#2. From the analysis of prior batches of a vaccine, it is found that the vaccine is 2.5 times more likely to produce a satisfactory result than not. The quality control team has collected 10 volunteers who are willing to participate in the trial of the new batch of the vaccine. Each volunteer is then given a dose of the vaccine. (15 points)
+n <- 10
+x = 0:n
+#let q = failure
+#1 = 2.5q + q = 3.5q
+q<-1/3.5
+p <- 2.5*q
+#a. Plot the probability distribution for the number of unsatisfactory doses?
+
+prob = dbinom(x, size=n, prob=p)
+barplot(prob, names.arg=x, xlab='Number of people', ylab='Prob of unsatisfactory doses')
+#b. Find the probability that exactly 4 doses will not be able to do a satisfactory job?
+
+prob_4_correct = dbinom(4, size=n, prob=p)
+cat("Probability of getting exactly 4:", prob_4_correct)
+
+#c. Find the probability that at most 4 doses will not do the satisfactory job out the 10
+#volunteers selected?
+  
+prob_atmost4 = pbinom(4, size=n, prob=p)
+cat("Probability of getting at most 4:", prob_atmost4)
+
+
+#3. The Dallas county administration want to buy 20 doses of the vaccine mentioned in the above
+#question for its staff. What is the probability that at least 7 doses will not do the satisfactory job
+#out of the 20 doses? (5 points)
+n <- 20   
+p <- 0.1 
+prob_failure <- 1 - pbinom(6, size = n, prob = p)
+prob_failure
+
+#4. The caffeine content (in mg) was examined for a random sample of 50 cups of black coffee
+#dispensed by a new machine. The mean of the sample is found to be 110 mg and the sample
+#standard deviation is estimated to be 7 mg. (10 points)
+n <- 50
+xbar <- 110
+s <- 7
+confidence <- .95
+alpha <- 1-.95
+#CLT n> 30, we can assume a normal distribution and use a Z score
+#a. Construct a 95% confidence interval for µ, the mean caffeine content for cups dispensed by the machine.
+
+standard_error <- s / sqrt(n)
+critical_value <- qnorm(1 - alpha/2)
+lower_bound <- xbar - critical_value*standard_error
+upper_bound <- xbar + critical_value*standard_error
+lower_bound
+upper_bound
+
+#b. Provide the interpretation of the constructed confidence interval.
+#We are 95% confident that the population mean falls between 108.0597 and 111.9403
+
+
+#5. Given the following data, weights (kg) of male and female students in a class, we would like to see if there is a difference between the weights of the two groups. (30 points)
+male_student = c(67.8, 60, 63.4, 76, 89.4, 73.3, 67.3, 61.3, 62.4)
+female_student = c(58.9, 51.2, 63.3, 61.8, 63.4, 64.6, 58.4, 58.8, 78.5)
+
+#a. Define the null and the alternative hypotheses.
+#H0: There is not a difference between the weights of male and female students in the class
+#HA: There is a difference between the weights of male and female students in the class
+#b. Use an appropriate test and compute the p-value.
+t.test(male_student, female_student, alternative="two.sided", var.equal = TRUE)
+#c. Compare the p-value with a level of significance of 0.05 and provide a conclusion.
+
+#
+
+#d. Compute the effect-size (Cohen’s d).
+
+d = cohen.d(male_student, female_student)
+print(d)
+
+#e. Compute the power of the test.
+
+pwr.t2n.test(d=d$estimate, n1=length(male_student), n2=length(female_student), sig.level=0.05)
+
+#f. Compute the sample size (same for each group) required to achieve a power of 0.8.
+
+pwr.t.test(d=0.029, sig.level=0.05, power=0.8)
