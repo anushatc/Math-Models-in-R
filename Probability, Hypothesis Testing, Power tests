@@ -102,9 +102,7 @@ female_student = c(58.9, 51.2, 63.3, 61.8, 63.4, 64.6, 58.4, 58.8, 78.5)
 #HA: There is a difference between the weights of male and female students in the class
 #b. Use an appropriate test and compute the p-value.
 t.test(male_student, female_student, alternative="two.sided", var.equal = TRUE)
-#c. Compare the p-value with a level of significance of 0.05 and provide a conclusion.
 
-#
 
 #d. Compute the effect-size (Cohen’s d).
 
